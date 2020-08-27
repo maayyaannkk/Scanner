@@ -1,5 +1,7 @@
 package `in`.mayanknagwanshi.scanner
 
+import `in`.mayanknagwanshi.scanner.analyser.QrCodeAnalyser
+import `in`.mayanknagwanshi.scanner.analyser.TextAnalyser
 import android.Manifest
 import android.annotation.TargetApi
 import android.app.Activity
@@ -8,10 +10,12 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.util.Size
 import android.view.Window
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
@@ -33,7 +37,7 @@ class ScannerActivity : AppCompatActivity() {
 
         if (intent != null && (intent.hasExtra(FLAG_TEXT) || intent.hasExtra(FLAG_QR))) {
             if (checkCameraPermission()) {
-                startCamera()
+                startCamera(intent.getBooleanExtra(FLAG_QR, false))
             } else {
                 requestCameraPermission()
             }
@@ -43,7 +47,7 @@ class ScannerActivity : AppCompatActivity() {
         }
     }
 
-    private fun startCamera() {
+    private fun startCamera(isQrCodeAnalyser: Boolean) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
         cameraProviderFuture.addListener(Runnable {
@@ -52,18 +56,29 @@ class ScannerActivity : AppCompatActivity() {
 
             // Preview
             val preview = Preview.Builder()
-                .build()
+                .apply {
+                    //Set the resolution of the captured image
+                    setTargetResolution(Size(480, 360))
+                }.build()
                 .also {
                     it.setSurfaceProvider(viewFinder.createSurfaceProvider())
                 }
 
-            /*val imageAnalyzer = ImageAnalysis.Builder()
+            val imageAnalysis = ImageAnalysis.Builder()
                 .build()
                 .also {
-                    it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
-                        Log.d(TAG, "Average luminosity: $luma")
-                    })
-                }*/
+                    if (isQrCodeAnalyser)
+                        it.setAnalyzer(cameraExecutor, QrCodeAnalyser { rawText ->
+                            //TODO stop camera and show value
+                            Log.e("raw_value", rawText)
+                        })
+                    else
+                        it.setAnalyzer(cameraExecutor, TextAnalyser { rawText ->
+                            //TODO stop camera and show value
+                            Log.e("raw_value", rawText)
+                        })
+                }
+
 
             // Select back camera as a default
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -74,7 +89,7 @@ class ScannerActivity : AppCompatActivity() {
 
                 // Bind use cases to camera
                 cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview
+                    this, cameraSelector, preview, imageAnalysis
                 )
 
             } catch (exc: Exception) {
@@ -109,7 +124,7 @@ class ScannerActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == CAMERA_CODE_PERMISSIONS) {
             if (checkCameraPermission()) {
-                startCamera()
+                startCamera(intent.getBooleanExtra(FLAG_QR, false))
             } else {
                 Toast.makeText(this, "Permissions not granted by the user.", Toast.LENGTH_SHORT)
                     .show()
@@ -124,28 +139,6 @@ class ScannerActivity : AppCompatActivity() {
         super.onDestroy()
         cameraExecutor.shutdown()
     }
-
-    /*private class LuminosityAnalyzer(private val listener: LumaListener) : ImageAnalysis.Analyzer {
-
-        private fun ByteBuffer.toByteArray(): ByteArray {
-            rewind()    // Rewind the buffer to zero
-            val data = ByteArray(remaining())
-            get(data)   // Copy the buffer into a byte array
-            return data // Return the byte array
-        }
-
-        override fun analyze(image: ImageProxy) {
-
-            val buffer = image.planes[0].buffer
-            val data = buffer.toByteArray()
-            val pixels = data.map { it.toInt() and 0xFF }
-            val luma = pixels.average()
-
-            listener(luma)
-
-            image.close()
-        }
-    }*/
 
     companion object {
         private const val CAMERA_CODE_PERMISSIONS = 11
