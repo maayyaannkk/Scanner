@@ -148,29 +148,33 @@ class ScannerActivity : AppCompatActivity() {
     }
 
     companion object {
-        val RESULT_STRING = "result_string"
+        const val RESULT_STRING = "result_string"
         private const val CAMERA_CODE_PERMISSIONS = 11
         private const val FLAG_TEXT = "flag_text"
         private const val FLAG_QR = "flag_qr"
 
+        @JvmStatic
         fun startActivityForTextRecognition(activity: Activity, requestCode: Int) {
             val intent = Intent(activity, ScannerActivity::class.java)
             intent.putExtra(FLAG_TEXT, true)
             activity.startActivityForResult(intent, requestCode)
         }
 
+        @JvmStatic
         fun startActivityForTextRecognition(fragment: Fragment, requestCode: Int) {
             val intent = Intent(fragment.activity, ScannerActivity::class.java)
             intent.putExtra(FLAG_TEXT, true)
             fragment.startActivityForResult(intent, requestCode)
         }
 
+        @JvmStatic
         fun startActivityForQrCode(activity: Activity, requestCode: Int) {
             val intent = Intent(activity, ScannerActivity::class.java)
             intent.putExtra(FLAG_QR, true)
             activity.startActivityForResult(intent, requestCode)
         }
 
+        @JvmStatic
         fun startActivityForQrCode(fragment: Fragment, requestCode: Int) {
             val intent = Intent(fragment.activity, ScannerActivity::class.java)
             intent.putExtra(FLAG_QR, true)
