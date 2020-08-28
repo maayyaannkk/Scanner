@@ -7,13 +7,33 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/buttonScanner"
+        android:id="@+id/buttonScannerQr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Open Scanner"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="Open QR Scanner"
+        app:layout_constraintBottom_toTopOf="@id/buttonScannerText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
         tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/buttonScannerText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Open Text Scanner"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonScannerQr"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonScannerText" />
 </androidx.constraintlayout.widget.ConstraintLayout>

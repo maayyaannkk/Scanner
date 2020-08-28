@@ -69,13 +69,13 @@ class ScannerActivity : AppCompatActivity() {
                 .also {
                     if (isQrCodeAnalyser)
                         it.setAnalyzer(cameraExecutor, QrCodeAnalyser { rawText ->
-                            //TODO stop camera and show value
-                            Log.e("raw_value", rawText)
+                            it.clearAnalyzer()
+                            finishWithResult(rawText)
                         })
                     else
                         it.setAnalyzer(cameraExecutor, TextAnalyser { rawText ->
-                            //TODO stop camera and show value
-                            Log.e("raw_value", rawText)
+                            it.clearAnalyzer()
+                            finishWithResult(rawText)
                         })
                 }
 
@@ -140,7 +140,15 @@ class ScannerActivity : AppCompatActivity() {
         cameraExecutor.shutdown()
     }
 
+    private fun finishWithResult(result: String) {
+        val intent = Intent()
+        intent.putExtra(RESULT_STRING, result)
+        setResult(Activity.RESULT_OK, intent)
+        finish()
+    }
+
     companion object {
+        val RESULT_STRING = "result_string"
         private const val CAMERA_CODE_PERMISSIONS = 11
         private const val FLAG_TEXT = "flag_text"
         private const val FLAG_QR = "flag_qr"
